@@ -1,0 +1,7 @@
+﻿  AppWindow.cpp
+  GraphicsEngine.cpp
+  main.cpp
+  SwapChain.cpp
+  Window.cpp
+  Generating Code...
+  DirectXGame.vcxproj -> D:\Projects\cpp\DirectX\DirectXGame\x64\Debug\DirectXGame.exe
