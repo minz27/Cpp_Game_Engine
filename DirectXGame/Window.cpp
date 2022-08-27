@@ -8,6 +8,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg,  WPARAM wparam, LPARAM lparam) {
 			//Window created event
 			Window* window = (Window*)((LPCREATESTRUCT)lparam)->lpCreateParams;
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)window);
+			window->setHWND(hwnd);
 			window->onCreate();
 			break;
 		}
@@ -79,6 +80,18 @@ bool Window::release()
 bool Window::isRun()
 {
 	return m_is_run;
+}
+
+RECT Window::getClientWindowRect()
+{
+	RECT rc;
+	::GetClientRect(this->m_hwnd, &rc);
+	return rc;
+}
+
+void Window::setHWND(HWND hwnd)
+{
+	this->m_hwnd = hwnd;
 }
 
 void Window::onDestroy()
