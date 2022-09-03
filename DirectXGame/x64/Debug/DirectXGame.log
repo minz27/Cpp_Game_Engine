@@ -1,11 +1,6 @@
 ﻿  AppWindow.cpp
-D:\Projects\cpp\DirectX\DirectXGame\DirectXGame\AppWindow.cpp(51,113): warning C4305: 'argument': truncation from 'double' to 'float'
-  DeviceContext.cpp
-D:\Projects\cpp\DirectX\DirectXGame\DirectXGame\DeviceContext.cpp(32,13): warning C4244: '=': conversion from 'UINT' to 'FLOAT', possible loss of data
-D:\Projects\cpp\DirectX\DirectXGame\DirectXGame\DeviceContext.cpp(33,14): warning C4244: '=': conversion from 'UINT' to 'FLOAT', possible loss of data
-  GraphicsEngine.cpp
-  main.cpp
-  SwapChain.cpp
+D:\Projects\cpp\DirectX\DirectXGame\DirectXGame\AppWindow.cpp(42,75): warning C4267: 'argument': conversion from 'size_t' to 'UINT', possible loss of data
+D:\Projects\cpp\DirectX\DirectXGame\DirectXGame\AppWindow.cpp(54,113): warning C4305: 'argument': truncation from 'double' to 'float'
   VertexBuffer.cpp
   Generating Code...
   DirectXGame.vcxproj -> D:\Projects\cpp\DirectX\DirectXGame\x64\Debug\DirectXGame.exe
