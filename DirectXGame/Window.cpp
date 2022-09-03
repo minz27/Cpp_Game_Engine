@@ -1,6 +1,6 @@
 #include "Window.h"
 
-Window* window = NULL;
+//Window* window = NULL;
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg,  WPARAM wparam, LPARAM lparam) {
 	switch (msg) {
@@ -24,6 +24,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg,  WPARAM wparam, LPARAM lparam) {
 	}
 	return NULL;
 }
+Window::Window()
+{
+}
 bool Window::init()
 {
 	WNDCLASSEX wc;
@@ -45,7 +48,7 @@ bool Window::init()
 		return false;
 
 
-	m_hwnd = ::CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, L"MyWindowClass", L"DirectX Application", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1024, 768,
+	m_hwnd = ::CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, L"MyWindowClass", L"DirectX Application", WS_CAPTION|WS_SYSMENU, CW_USEDEFAULT, CW_USEDEFAULT, 1024, 768,
 		NULL, NULL, NULL, this);
 	if (!m_hwnd)
 		return false;
@@ -60,13 +63,14 @@ bool Window::init()
 bool Window::broadcast()
 {
 	MSG msg;
+	this->onUpdate();
+
 	while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
 
-	this->onUpdate();
-	Sleep(0);
+	Sleep(1);
 	return true;
 }
 
@@ -94,7 +98,19 @@ void Window::setHWND(HWND hwnd)
 	this->m_hwnd = hwnd;
 }
 
+void Window::onCreate()
+{
+}
+
+void Window::onUpdate()
+{
+}
+
 void Window::onDestroy()
 {
 	m_is_run = false;
+}
+
+Window::~Window()
+{
 }

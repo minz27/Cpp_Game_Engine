@@ -3,6 +3,7 @@
 
 class Window {
 public:
+	Window();
 	//Initialise the Window
 	bool init();
 	bool broadcast();
@@ -13,9 +14,11 @@ public:
 	RECT getClientWindowRect();
 	void setHWND(HWND hwnd);
 	//EVENTS
-	virtual void onCreate() = 0;
-	virtual void onUpdate() = 0;
+	virtual void onCreate();
+	virtual void onUpdate();
 	virtual void onDestroy();
+
+	~Window();
 protected:
 	HWND m_hwnd;
 	bool m_is_run;
