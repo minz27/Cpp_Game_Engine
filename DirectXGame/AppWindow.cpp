@@ -1,4 +1,5 @@
 #include "AppWindow.h"
+#include "Windows.h"
 
 //Data structure to store vertex coordinates
 struct vec3 {
@@ -8,7 +9,15 @@ struct vec3 {
 //Data structure to store vertices
 struct vertex {
 	vec3 position;
+	vec3 position1;
 	vec3 color;
+	vec3 color1;
+};
+
+//Data Structure for constant buffer
+_declspec(align(16))
+struct constant {
+	unsigned int m_time;
 };
 
 
@@ -23,11 +32,11 @@ void AppWindow::onCreate()
 
 	//Create list of vertices of triangle
 	vertex list[] = {
-		//Position            Color
-		{-0.5f, -0.5f, 0.0f,  1,0,0},
-		{-0.5f, 0.5f, 0.0f,   0,1,1},
-		{0.5f, -0.5f, 0.0f,   0,0,1},
-		{0.5f, 0.5f, 0.0f,    1,1,0},
+		//Position            New Position          Color   New Color
+		{-0.5f, -0.5f, 0.0f, -0.15f, -0.35f, 0.2f,  1,0,0,   1,0,1},
+		{-0.5f, 0.5f, 0.0f,  -0.72f, 0.45f, -0.1f,  0,1,1,   1,1,0},
+		{0.5f, -0.5f, 0.0f,  0.5f, 0.13f, 0.52f,    0,0,1,   1,0,0},
+		{0.5f, 0.5f, 0.0f,   0.0f, -0.14f, -0.72f,  1,1,0,   0,1,1},
 		
 	};
 
@@ -46,6 +55,11 @@ void AppWindow::onCreate()
 	GraphicsEngine::get()->compilePixelShader(L"PixelShader.hlsl", "psmain", &shader_byte_code, &size_shader);
 	m_ps = GraphicsEngine::get()->createPixelShader(shader_byte_code, size_shader);
 	GraphicsEngine::get()->releaseCompiledShader();
+
+	constant cc;
+	cc.m_time = 0;
+	m_cb = GraphicsEngine::get()->createConstantBuffer();
+	m_cb->load(&cc, sizeof(constant));
 }
 
 void AppWindow::onUpdate()
@@ -56,6 +70,14 @@ void AppWindow::onUpdate()
 	//Set viewport of render target in which we are drawing
 	RECT rc = this->getClientWindowRect();
 	GraphicsEngine::get()->getImmediateDeviceContext()->setViewportSize(rc.right - rc.left, rc.bottom - rc.top);
+	
+	//create new struct of type constant to store time elapsed
+	constant cc;
+	cc.m_time = ::GetTickCount(); //Time elapsed since system started
+	m_cb->update(GraphicsEngine::get()->getImmediateDeviceContext(), &cc);
+	//bind constant buffer to graphics pipeline for each shader type
+	GraphicsEngine::get()->getImmediateDeviceContext()->setConstantBuffer(m_vs, m_cb);
+	GraphicsEngine::get()->getImmediateDeviceContext()->setConstantBuffer(m_ps, m_cb);
 
 	//Use vertex shader
 	GraphicsEngine::get()->getImmediateDeviceContext()->setVertexShader(m_vs);
