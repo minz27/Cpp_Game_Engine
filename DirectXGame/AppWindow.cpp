@@ -1,25 +1,56 @@
 #include "AppWindow.h"
-#include "Windows.h"
-
-//Data structure to store vertex coordinates
-struct vec3 {
-	float x, y, z;
-};
+#include <Windows.h>
+#include "Vector3D.h"
+#include "Matrix4x4.h"
 
 //Data structure to store vertices
 struct vertex {
-	vec3 position;
-	vec3 position1;
-	vec3 color;
-	vec3 color1;
+	Vector3D position;
+	Vector3D position1;
+	Vector3D color;
+	Vector3D color1;
 };
 
 //Data Structure for constant buffer
 _declspec(align(16))
 struct constant {
+	Matrix4x4 m_world;
+	Matrix4x4 m_view;
+	Matrix4x4 m_proj;
 	unsigned int m_time;
 };
 
+
+void AppWindow::updateQuadPosition()
+{
+	//create new struct of type constant to store time elapsed
+	constant cc;
+	cc.m_time = ::GetTickCount64(); //Time elapsed since system started
+
+	//Translation Animation by Linear Interpolation
+	m_delta_pos += m_delta_time / 10.0f; //Divide by n means we reach one unit in n seconds
+	if (m_delta_pos > 1.0f)
+		m_delta_pos = 0;
+
+	Matrix4x4 temp;
+	temp.setTranslation(Vector3D::lerp(Vector3D(-1.5f,-1.5f,0), Vector3D(1.5,1.5f,0), m_delta_pos));
+	//Scale Animation using the sin function to get smoother
+	m_delta_scale += m_delta_time / 0.15f;
+
+	cc.m_world.setScale(Vector3D::lerp(Vector3D(0.5, 0.5, 0), Vector3D(2, 2, 0), (sin(m_delta_scale)+1.0f)/2.0f));
+
+	//Combine scale and translation matrices
+	cc.m_world *= temp;
+
+	cc.m_view.setIdentity();
+	cc.m_proj.setOrthoLH(
+		(this->getClientWindowRect().right - this->getClientWindowRect().left)/400.0f,
+		(this->getClientWindowRect().bottom - this->getClientWindowRect().top)/400.0f,
+		-4.0f,4.0f
+		);
+
+	m_cb->update(GraphicsEngine::get()->getImmediateDeviceContext(), &cc);
+}
 
 void AppWindow::onCreate()
 {
@@ -32,12 +63,11 @@ void AppWindow::onCreate()
 
 	//Create list of vertices of triangle
 	vertex list[] = {
-		//Position            New Position          Color   New Color
-		{-0.5f, -0.5f, 0.0f, -0.15f, -0.35f, 0.2f,  1,0,0,   1,0,1},
-		{-0.5f, 0.5f, 0.0f,  -0.72f, 0.45f, -0.1f,  0,1,1,   1,1,0},
-		{0.5f, -0.5f, 0.0f,  0.5f, 0.13f, 0.52f,    0,0,1,   1,0,0},
-		{0.5f, 0.5f, 0.0f,   0.0f, -0.14f, -0.72f,  1,1,0,   0,1,1},
-		
+		//Position                               New Position              Color              New Color
+		{Vector3D (-0.5f,-0.5f,0.0f), Vector3D(-0.32f,-0.11f,0.0f),  Vector3D(1,0,0),   Vector3D(1,0,1)},
+		{Vector3D(-0.5f,0.5f,0.0f),   Vector3D(-0.11f,0.78f,0.0f),   Vector3D(0,1,1),   Vector3D(1,1,0)},
+		{Vector3D(0.5f,-0.5f,0.0f),   Vector3D(0.75f,-0.73f,0.0f),   Vector3D(0,0,1),   Vector3D(1,0,0)},
+		{Vector3D(0.5f, 0.5f, 0.0f),  Vector3D(0.88f,0.77f,0.0f),    Vector3D(1,1,0),   Vector3D(0,1,1)},
 	};
 
 	m_vb = GraphicsEngine::get()->createVertexBuffer();
@@ -71,10 +101,8 @@ void AppWindow::onUpdate()
 	RECT rc = this->getClientWindowRect();
 	GraphicsEngine::get()->getImmediateDeviceContext()->setViewportSize(rc.right - rc.left, rc.bottom - rc.top);
 	
-	//create new struct of type constant to store time elapsed
-	constant cc;
-	cc.m_time = ::GetTickCount(); //Time elapsed since system started
-	m_cb->update(GraphicsEngine::get()->getImmediateDeviceContext(), &cc);
+	updateQuadPosition();
+
 	//bind constant buffer to graphics pipeline for each shader type
 	GraphicsEngine::get()->getImmediateDeviceContext()->setConstantBuffer(m_vs, m_cb);
 	GraphicsEngine::get()->getImmediateDeviceContext()->setConstantBuffer(m_ps, m_cb);
@@ -89,6 +117,11 @@ void AppWindow::onUpdate()
 
 	
 	m_swap_chain->present(true);
+
+	//Update times
+	m_old_delta = m_new_delta;
+	m_new_delta = ::GetTickCount64();
+	m_delta_time = (m_old_delta) ? (m_new_delta - m_old_delta)/1000.0f : 0;
 }
 
 void AppWindow::onDestroy()

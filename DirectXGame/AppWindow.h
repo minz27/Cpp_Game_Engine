@@ -11,6 +11,8 @@
 class AppWindow: public Window
 {
 public:
+	void updateQuadPosition();
+
 	// Inherited via Window
 	virtual void onCreate() override;
 	virtual void onUpdate() override;
@@ -21,5 +23,15 @@ private:
 	ConstantBuffer* m_cb;
 	VertexShader* m_vs;
 	PixelShader* m_ps;
+private:
+	//time point when previous frame was rendered
+	float m_old_delta;
+	//time point when current frame is rendered
+	float m_new_delta;
+	//differene between new_delta and old_delta
+	float m_delta_time;
+
+	float m_delta_pos;
+	float m_delta_scale;
 };
 

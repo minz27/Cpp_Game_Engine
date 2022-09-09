@@ -7,6 +7,11 @@ struct PS_INPUT //==VS_OUTPUT
 
 cbuffer constant: register(b0)
 {
+	//using rowmajor convention
+	row_major float4x4 m_world;
+	row_major float4x4 m_view;
+	row_major float4x4 m_proj;
+
 	unsigned int m_time;
 };
 
